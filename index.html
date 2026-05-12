@@ -678,7 +678,10 @@
     <script>
         // PASSWORD ADMIN
         const ADMIN_PASSWORD = 'admin123';
-
+        
+// Aggiungi questa variabile globale all'inizio del <script>
+let atletaInModificaId = null;
+        
         // VARIABILI GLOBALI
         let scriptUrl = localStorage.getItem('scriptUrl') || null;
         let societaAttiva = null;
@@ -809,8 +812,7 @@
             document.getElementById('loginStatus').innerHTML = '';
         }
 
-// Aggiungi questa variabile globale all'inizio del <script>
-let atletaInModificaId = null;
+
 
 // ===== AGGIUNGI O AGGIORNA ATLETA =====
 function aggiungiAtleta() {
