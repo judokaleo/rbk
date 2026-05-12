@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Iscrizioni Karate - Google Sheets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #ef5350;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .btn-danger:hover {
+            background: #e53935;
+        }
+
+        .btn-success {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #4caf50;
+        }
+
+        .btn-warning {
+            background: #ffa726;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #fb8c00;
+        }
+
+        .btn-secondary {
+            background: #90a4ae;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #78909c;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #c8e6c9;
+            color: #2e7d32;
+            border: 1px solid #81c784;
+        }
+
+        .alert-danger {
+            background: #ffcdd2;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        .alert-warning {
+            background: #ffe0b2;
+            color: #e65100;
+            border: 1px solid #ffb74d;
+        }
+
+        .alert-info {
+            background: #b3e5fc;
+            color: #01579b;
+            border: 1px solid #4fc3f7;
+        }
+
+        .athletes-list {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .athlete-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .athlete-item:last-child {
+            border-bottom: none;
+        }
+
+        .athlete-info {
+            flex: 1;
+        }
+
+        .athlete-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .athlete-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .stats-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats-box h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stats-box p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .pool-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .pool-section h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .pool-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-open {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .badge-closed {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .welcome-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-box h2 {
+            margin-bottom: 10px;
+        }
+
+        .auth-section {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .tab-buttons button {
+            flex: 1;
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .tab-buttons button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .setup-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .export-buttons button {
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⛩️ Gestione Iscrizioni Karate</h1>
+            <p>Sistema con Google Sheets - Dati su Google Drive</p>
+        </div>
+
+        <div class="content">
+            <!-- SEZIONE SETUP -->
+            <div id="setupSection">
+                <div class="setup-warning">
+                    <h3>⚠️ SETUP RICHIESTO</h3>
+                    <p style="margin-top: 10px;">Incolla l'URL della webapp Google Apps Script che hai creato:</p>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/d/xxxxx/userweb" style="font-size: 0.9em;">
+                    </div>
+                    <button class="btn-primary" onclick="salvaScriptUrl()">Salva URL e Continua</button>
+                    <div id="setupStatus"></div>
+                </div>
+            </div>
+
+            <!-- SEZIONE AUTENTICAZIONE -->
+            <div id="authSection" style="display: none;">
+                <div class="auth-section">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="loginSocieta">Accedi Società</button>
+                        <button class="tab-btn" data-tab="registraSocieta">Nuova Società</button>
+                        <button class="tab-btn" data-tab="loginAdmin">Admin</button>
+                    </div>
+
+                    <!-- LOGIN SOCIETÀ -->
+                    <div id="loginSocieta" class="tab-content active">
+                        <div class="form-section">
+                            <h3>Accedi - Società</h3>
+                            <div class="form-group">
+                                <label for="loginEmail">Email Società:</label>
+                                <input type="email" id="loginEmail" placeholder="esempio@societa.it">
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">Password:</label>
+                                <input type="password" id="loginPassword" placeholder="La tua password">
+                            </div>
+                            <button class="btn-primary" onclick="loginSocieta()" style="width: 100%;">Accedi</button>
+                            <div id="loginStatus"></div>
+                        </div>
+                    </div>
+
+                    <!-- REGISTRA SOCIETÀ -->
+                    <div id="registraSocieta" class="tab-content">
+                        <div class="form-section">
+                            <h3>Registra Nuova Società</h3>
+                            <div class="form-group">
+                                <label for="regNomeSocieta">Nome Società:</label>
+                                <input type="text" id="regNomeSocieta" placeholder="Es: Karate Club Roma">
+                            </div>
+                            <div class="form-group">
+                                <label for="regCittaSocieta">Città:</label>
+                                <input type="text" id="regCittaSocieta" placeholder="Es: Roma">
+                            </div>
+                            <div class="form-group">
+                                <label for="regEmail">Email Società:</label>
+                                <input type="email" id="regEmail" placeholder="esempio@societa.it">
+                            </div>
+                            <div class="form-group">
+                                <label for="regPassword">Password (minimo 6 caratteri):</label>
+                                <input type="password" id="regPassword" placeholder="Scegli una password sicura">
+                            </div>
+                            <div class="form-group">
+                                <label for="regReferente">Referente (Nome e Cognome):</label>
+                                <input type="text" id="regReferente" placeholder="Es: Mario Rossi">
+                            </div>
+                            <div class="form-group">
+                                <label for="regTelefono">Telefono:</label>
+                                <input type="tel" id="regTelefono" placeholder="Es: 3331234567">
+                            </div>
+                            <button class="btn-success" onclick="registraSocieta()" style="width: 100%;">Registra Società</button>
+                            <div id="regStatus"></div>
+                        </div>
+                    </div>
+
+                    <!-- LOGIN ADMIN -->
+                    <div id="loginAdmin" class="tab-content">
+                        <div class="form-section">
+                            <h3>Accesso Admin</h3>
+                            <div class="form-group">
+                                <label for="adminPassword">Password Admin:</label>
+                                <input type="password" id="adminPassword" placeholder="admin123">
+                            </div>
+                            <button class="btn-primary" onclick="loginAdminPanel()" style="width: 100%;">Accedi Admin</button>
+                            <div id="adminStatus"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEZIONE SOCIETÀ LOGGATA -->
+            <div id="societaSection" style="display: none;">
+                <div class="welcome-box">
+                    <h2>Benvenuto, <span id="nomeSocietaWelcome"></span>!</h2>
+                    <p>Gestisci gli atleti della tua società - I dati vengono salvati automaticamente su Google Sheets</p>
+                </div>
+
+                <div class="form-section">
+                    <h3>Aggiungi Atleta</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nomeAtleta">Nome Atleta:</label>
+                            <input type="text" id="nomeAtleta" placeholder="Es: Marco">
+                        </div>
+                        <div class="form-group">
+                            <label for="cognomeAtleta">Cognome:</label>
+                            <input type="text" id="cognomeAtleta" placeholder="Es: Bianchi">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="annoNascitaAtleta">Anno Nascita:</label>
+                            <input type="number" id="annoNascitaAtleta" min="1950" max="2030" placeholder="Es: 2010">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoriaAtleta">Categoria:</label>
+                            <select id="categoriaAtleta">
+                                <option value="">-- Seleziona Categoria --</option>
+                                <option value="Under 8">Under 8</option>
+                                <option value="Under 10">Under 10</option>
+                                <option value="Under 12">Under 12</option>
+                                <option value="Under 14">Under 14</option>
+                                <option value="Under 16">Under 16</option>
+                                <option value="Juniores">Juniores</option>
+                                <option value="Seniores">Seniores</option>
+                                <option value="Master">Master</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pesoAtleta">Peso (kg):</label>
+                            <input type="number" id="pesoAtleta" step="0.1" placeholder="Es: 45">
+                        </div>
+                        <div class="form-group">
+                            <label for="garaAtleta">Tipo Gara:</label>
+                            <select id="garaAtleta">
+                                <option value="">-- Seleziona Gara --</option>
+                                <option value="Kata">Kata</option>
+                                <option value="Kumite">Kumite</option>
+                                <option value="Entrambi">Entrambi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-success" onclick="aggiungiAtleta()" style="width: 100%;">+ Aggiungi Atleta</button>
+                </div>
+
+                <div>
+                    <h3>Atleti Iscritti</h3>
+                    <div id="atletiList" class="athletes-list">
+                        <p style="padding: 15px; color: #999; text-align: center;">Nessun atleta aggiunto ancora</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-secondary" onclick="logoutSocieta()">Esci</button>
+                </div>
+            </div>
+
+            <!-- SEZIONE ADMIN -->
+            <div id="adminSection" style="display: none;">
+                <div class="welcome-box">
+                    <h2>Panel Amministrazione</h2>
+                    <p>Gestione iscrizioni e generazione pool</p>
+                </div>
+
+                <div class="stats-box">
+                    <h3 id="totalAtleti">0</h3>
+                    <p>Atleti Iscritti Totali</p>
+                </div>
+
+                <div class="form-section">
+                    <h3>Gestione Iscrizioni</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                        <button class="btn-warning" onclick="chiudiIscrizioni()">🔒 Chiudi Iscrizioni</button>
+                        <button class="btn-success" onclick="generaPool()">🎯 Genera Pool</button>
+                    </div>
+                    <p style="margin-bottom: 10px; font-size: 0.95em; color: #666;">
+                        <strong>Stato:</strong> <span id="statoIscrizioni" class="status-badge badge-open">APERTE</span>
+                    </p>
+                </div>
+
+                <div>
+                    <h3>Società Iscritte</h3>
+                    <table id="tabellaIscrizioni">
+                        <thead>
+                            <tr>
+                                <th>Società</th>
+                                <th>Città</th>
+                                <th>Referente</th>
+                                <th>N. Atleti</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="iscrzioniBody">
+                            <tr><td colspan="5" style="text-align: center; color: #999;">Caricamento...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="poolContainer" style="display: none; margin-top: 40px;">
+                    <h2>Pool Generati</h2>
+                    <div id="poolContent"></div>
+                    <div class="export-buttons">
+                        <button class="btn-primary" onclick="esportaPDF()">📄 Esporta PDF</button>
+                        <button class="btn-success" onclick="esportaExcel()">📊 Esporta Excel</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn-secondary" onclick="logoutAdmin()">Esci</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE CONFERMA -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2 id="confirmTitle">Conferma</h2>
+            <p id="confirmText"></p>
+            <div class="modal-buttons">
+                <button class="btn-primary" onclick="confermaSi()">Sì, conferma</button>
+                <button class="btn-secondary" onclick="confermaNo()">Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PASSWORD ADMIN
+        const ADMIN_PASSWORD = 'admin123';
+
+        // VARIABILI GLOBALI
+        let scriptUrl = localStorage.getItem('scriptUrl') || null;
+        let societaAttiva = null;
+        let confirmCallback = null;
+
+        // INIZIALIZZAZIONE
+        if (scriptUrl) {
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('authSection').style.display = 'block';
+        } else {
+            document.getElementById('setupSection').style.display = 'block';
+            document.getElementById('authSection').style.display = 'none';
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.getElementById(e.target.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ===== SETUP SCRIPT URL =====
+        function salvaScriptUrl() {
+            const url = document.getElementById('scriptUrl').value.trim();
+            if (!url || !url.includes('script.google.com')) {
+                mostraAlert('setupStatus', 'Inserisci un URL valido di Google Apps Script', 'danger');
+                return;
+            }
+
+            scriptUrl = url;
+            localStorage.setItem('scriptUrl', scriptUrl);
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('authSection').style.display = 'block';
+            mostraAlert('loginStatus', '✓ Setup completato! Ora puoi registrarti o accedere.', 'success');
+        }
+
+        // ===== CHIAMATE API A GOOGLE APPS SCRIPT =====
+        function callGoogleAppsScript(action, data) {
+            return fetch(scriptUrl, {
+                method: 'POST',
+                body: JSON.stringify({ action, ...data })
+            })
+            .then(response => response.json())
+            .catch(error => ({ success: false, error: error.toString() }));
+        }
+
+        // ===== REGISTRAZIONE SOCIETÀ =====
+        function registraSocieta() {
+            const nome = document.getElementById('regNomeSocieta').value.trim();
+            const citta = document.getElementById('regCittaSocieta').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const referente = document.getElementById('regReferente').value.trim();
+            const telefono = document.getElementById('regTelefono').value.trim();
+
+            if (!nome || !citta || !email || !password || !referente || !telefono) {
+                mostraAlert('regStatus', 'Completa tutti i campi', 'danger');
+                return;
+            }
+
+            if (password.length < 6) {
+                mostraAlert('regStatus', 'Password minimo 6 caratteri', 'danger');
+                return;
+            }
+
+            mostraAlert('regStatus', 'Registrazione in corso...<span class="loading"></span>', 'info');
+
+            callGoogleAppsScript('registraSocieta', {
+                id: Date.now(),
+                nome,
+                citta,
+                email,
+                password,
+                referente,
+                telefono
+            }).then(result => {
+                if (result.success) {
+                    mostraAlert('regStatus', '✓ Società registrata! Accedi ora.', 'success');
+                    
+                    setTimeout(() => {
+                        document.getElementById('regNomeSocieta').value = '';
+                        document.getElementById('regCittaSocieta').value = '';
+                        document.getElementById('regEmail').value = '';
+                        document.getElementById('regPassword').value = '';
+                        document.getElementById('regReferente').value = '';
+                        document.getElementById('regTelefono').value = '';
+                        document.querySelectorAll('.tab-btn')[0].click();
+                    }, 1500);
+                } else {
+                    mostraAlert('regStatus', result.error || 'Errore nella registrazione', 'danger');
+                }
+            });
+        }
+
+        // ===== LOGIN SOCIETÀ =====
+        function loginSocieta() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                mostraAlert('loginStatus', 'Inserisci email e password', 'danger');
+                return;
+            }
+
+            mostraAlert('loginStatus', 'Accesso in corso...<span class="loading"></span>', 'info');
+
+            callGoogleAppsScript('loginSocieta', { email, password }).then(result => {
+                if (result.success) {
+                    societaAttiva = result.societa;
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('societaSection').style.display = 'block';
+                    document.getElementById('nomeSocietaWelcome').textContent = societaAttiva.nome;
+                    aggiornaListaAtleti();
+                } else {
+                    mostraAlert('loginStatus', result.error || 'Credenziali non valide', 'danger');
+                }
+            });
+        }
+
+        function logoutSocieta() {
+            societaAttiva = null;
+            document.getElementById('societaSection').style.display = 'none';
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginStatus').innerHTML = '';
+        }
+
+        // ===== GESTIONE ATLETI =====
+        function aggiungiAtleta() {
+            const nome = document.getElementById('nomeAtleta').value.trim();
+            const cognome = document.getElementById('cognomeAtleta').value.trim();
+            const anno = document.getElementById('annoNascitaAtleta').value;
+            const categoria = document.getElementById('categoriaAtleta').value;
+            const peso = document.getElementById('pesoAtleta').value;
+            const gara = document.getElementById('garaAtleta').value;
+
+            if (!nome || !cognome || !anno || !categoria || !peso || !gara) {
+                mostraAlert('loginStatus', 'Completa tutti i campi', 'danger');
+                return;
+            }
+
+            mostraAlert('loginStatus', 'Aggiunta in corso...<span class="loading"></span>', 'info');
+
+            const atleta = { id: Date.now(), nome, cognome, anno, categoria, peso, gara };
+
+            callGoogleAppsScript('aggiungiAtleta', {
+                societaId: societaAttiva.id,
+                atleta
+            }).then(result => {
+                if (result.success) {
+                    societaAttiva.atleti.push(atleta);
+                    aggiornaListaAtleti();
+                    document.getElementById('nomeAtleta').value = '';
+                    document.getElementById('cognomeAtleta').value = '';
+                    document.getElementById('annoNascitaAtleta').value = '';
+                    document.getElementById('categoriaAtleta').value = '';
+                    document.getElementById('pesoAtleta').value = '';
+                    document.getElementById('garaAtleta').value = '';
+                    mostraAlert('loginStatus', '✓ Atleta aggiunto', 'success');
+                } else {
+                    mostraAlert('loginStatus', result.error || 'Errore nell\'aggiunta', 'danger');
+                }
+            });
+        }
+
+        function aggiornaListaAtleti() {
+            const container = document.getElementById('atletiList');
+            if (!societaAttiva || societaAttiva.atleti.length === 0) {
+                container.innerHTML = '<p style="padding: 15px; color: #999; text-align: center;">Nessun atleta aggiunto ancora</p>';
+                return;
+            }
+
+            container.innerHTML = societaAttiva.atleti.map((a, i) => `
+                <div class="athlete-item">
+                    <div class="athlete-info">
+                        <div class="athlete-name">${a.nome} ${a.cognome}</div>
+                        <div class="athlete-details">
+                            ${a.categoria} • ${a.peso}kg • ${a.gara} • Nato: ${a.anno}
+                        </div>
+                    </div>
+                    <button class="btn-danger" onclick="rimuoviAtleta(${a.id})">Rimuovi</button>
+                </div>
+            `).join('');
+        }
+
+        function rimuoviAtleta(atletaId) {
+            confirmCallback = () => {
+                callGoogleAppsScript('rimuoviAtleta', {
+                    societaId: societaAttiva.id,
+                    atletaId
+                }).then(result => {
+                    if (result.success) {
+                        societaAttiva.atleti = societaAttiva.atleti.filter(a => a.id !== atletaId);
+                        aggiornaListaAtleti();
+                    }
+                });
+            };
+            mostraConferma('Rimuovi Atleta', 'Sei sicuro di voler rimuovere questo atleta?');
+        }
+
+        // ===== ADMIN PANEL =====
+        function loginAdminPanel() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd !== ADMIN_PASSWORD) {
+                mostraAlert('adminStatus', 'Password admin errata', 'danger');
+                return;
+            }
+
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('adminSection').style.display = 'block';
+            aggiornaAdminPanel();
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminStatus').innerHTML = '';
+        }
+
+        function aggiornaAdminPanel() {
+            callGoogleAppsScript('getAllSocieta', {}).then(result => {
+                if (result.success) {
+                    const societa = result.societa || [];
+                    const totalAtleti = societa.reduce((sum, s) => sum + (s.atleti ? s.atleti.length : 0), 0);
+                    document.getElementById('totalAtleti').textContent = totalAtleti;
+
+                    const tbody = document.getElementById('iscrzioniBody');
+                    if (societa.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Nessuna società registrata</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = societa.map(s => `
+                        <tr>
+                            <td>${s.nome}</td>
+                            <td>${s.citta}</td>
+                            <td>${s.referente}</td>
+                            <td>${(s.atleti ? s.atleti.length : 0)}</td>
+                            <td><button class="btn-danger" onclick="eliminaSocieta(${s.id})">Elimina</button></td>
+                        </tr>
+                    `).join('');
+                }
+            });
+        }
+
+        function eliminaSocieta(societaId) {
+            confirmCallback = () => {
+                callGoogleAppsScript('eliminaSocieta', { id: societaId }).then(result => {
+                    if (result.success) {
+                        aggiornaAdminPanel();
+                    }
+                });
+            };
+            mostraConferma('Elimina Società', 'Sei sicuro? Perderai tutti gli atleti di questa società.');
+        }
+
+        function chiudiIscrizioni() {
+            confirmCallback = () => {
+                callGoogleAppsScript('chiudiIscrizioni', {}).then(result => {
+                    if (result.success) {
+                        aggiornaAdminPanel();
+                        mostraAlert('adminStatus', '✓ Iscrizioni chiuse', 'success');
+                    }
+                });
+            };
+            mostraConferma('Chiudi Iscrizioni', 'Chiudere le iscrizioni? Non sarà più possibile aggiungere atleti.');
+        }
+
+        function generaPool() {
+            callGoogleAppsScript('getAllSocieta', {}).then(result => {
+                if (!result.success || !result.societa || result.societa.length === 0) {
+                    alert('Nessun atleta disponibile');
+                    return;
+                }
+
+                const pool = {};
+                const societa = result.societa;
+
+                societa.forEach(s => {
+                    (s.atleti || []).forEach(atleta => {
+                        if (atleta.gara === 'Entrambi') {
+                            ['Kata', 'Kumite'].forEach(gara => {
+                                creaPool(pool, atleta, gara, s.nome);
+                            });
+                        } else {
+                            creaPool(pool, atleta, atleta.gara, s.nome);
+                        }
+                    });
+                });
+
+                const gironi = {};
+                Object.keys(pool).forEach(key => {
+                    const atleti = pool[key];
+                    const numGironi = Math.ceil(atleti.length / 8);
+                    gironi[key] = [];
+                    
+                    for (let g = 0; g < numGironi; g++) {
+                        const girone = atleti.slice(g * 8, (g + 1) * 8);
+                        gironi[key].push(girone);
+                    }
+                });
+
+                visualizzaPool(gironi);
+            });
+        }
+
+        function creaPool(pool, atleta, gara, societa) {
+            const key = `${atleta.categoria} - ${gara}`;
+            if (!pool[key]) {
+                pool[key] = [];
+            }
+            pool[key].push({
+                nome: atleta.nome,
+                cognome: atleta.cognome,
+                peso: atleta.peso,
+                anno: atleta.anno,
+                societa: societa
+            });
+        }
+
+        function visualizzaPool(gironi) {
+            const container = document.getElementById('poolContent');
+            let html = '';
+
+            Object.keys(gironi).sort().forEach(categoria => {
+                const girone = gironi[categoria];
+                html += `<div class="pool-section">
+                    <h4>${categoria}</h4>`;
+                
+                girone.forEach((atleti, index) => {
+                    html += `<h5 style="color: #764ba2; margin-top: 10px; margin-bottom: 8px;">Girone ${index + 1} (${atleti.length} atleti)</h5>`;
+                    atleti.forEach(a => {
+                        html += `<div class="pool-item">
+                            ${a.nome} ${a.cognome} (${a.peso}kg) - ${a.societa}
+                        </div>`;
+                    });
+                });
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+            document.getElementById('poolContainer').style.display = 'block';
+            window.poolData = gironi;
+        }
+
+        function esportaPDF() {
+            if (!window.poolData) return;
+
+            let content = 'POOL GENERATI\n\n';
+            Object.keys(window.poolData).forEach(categoria => {
+                content += `\n${categoria}\n${'='.repeat(50)}\n`;
+                window.poolData[categoria].forEach((girone, idx) => {
+                    content += `\nGirone ${idx + 1} (${girone.length} atleti):\n`;
+                    girone.forEach(a => {
+                        content += `  - ${a.nome} ${a.cognome} (${a.peso}kg) - ${a.societa}\n`;
+                    });
+                });
+            });
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+            element.setAttribute('download', 'pool_karate.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function esportaExcel() {
+            if (!window.poolData) return;
+
+            let csv = 'Categoria,Girone,Nome,Cognome,Peso,Anno Nascita,Società\n';
+            Object.keys(window.poolData).forEach(categoria => {
+                window.poolData[categoria].forEach((girone, idx) => {
+                    girone.forEach(a => {
+                        csv += `${categoria},${idx + 1},${a.nome},${a.cognome},${a.peso},${a.anno},${a.societa}\n`;
+                    });
+                });
+            });
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+            element.setAttribute('download', 'pool_karate.csv');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        // ===== UTILITY =====
+        function mostraAlert(elementId, messaggio, tipo) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="alert alert-${tipo}">${messaggio}</div>`;
+        }
+
+        function mostraConferma(titolo, testo) {
+            document.getElementById('confirmTitle').textContent = titolo;
+            document.getElementById('confirmText').textContent = testo;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function confermaSi() {
+            document.getElementById('confirmModal').classList.remove('active');
+            if (confirmCallback) {
+                confirmCallback();
+                confirmCallback = null;
+            }
+        }
+
+        function confermaNo() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmCallback = null;
+        }
+    </script>
+</body>
+</html>
