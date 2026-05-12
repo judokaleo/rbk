@@ -677,7 +677,7 @@
 
     <script>
         // PASSWORD ADMIN
-        const ADMIN_PASSWORD = 'qwe';
+        const ADMIN_PASSWORD = 'admin123';
 
         // VARIABILI GLOBALI
         let scriptUrl = localStorage.getItem('scriptUrl') || null;
@@ -809,63 +809,119 @@
             document.getElementById('loginStatus').innerHTML = '';
         }
 
-        // ===== GESTIONE ATLETI =====
-        function aggiungiAtleta() {
-            const nome = document.getElementById('nomeAtleta').value.trim();
-            const cognome = document.getElementById('cognomeAtleta').value.trim();
-            const anno = document.getElementById('annoNascitaAtleta').value;
-            const categoria = document.getElementById('categoriaAtleta').value;
-            const peso = document.getElementById('pesoAtleta').value;
-            const gara = document.getElementById('garaAtleta').value;
+// Aggiungi questa variabile globale all'inizio del <script>
+let atletaInModificaId = null;
 
-            if (!nome || !cognome || !anno || !categoria || !peso || !gara) {
-                mostraAlert('loginStatus', 'Completa tutti i campi', 'danger');
-                return;
+// ===== AGGIUNGI O AGGIORNA ATLETA =====
+function aggiungiAtleta() {
+    const nome = document.getElementById('nomeAtleta').value.trim();
+    const cognome = document.getElementById('cognomeAtleta').value.trim();
+    const anno = document.getElementById('annoNascitaAtleta').value;
+    const categoria = document.getElementById('categoriaAtleta').value;
+    const peso = document.getElementById('pesoAtleta').value;
+    const gara = document.getElementById('garaAtleta').value;
+
+    if (!nome || !cognome || !anno || !categoria || !peso || !gara) {
+        mostraAlert('loginStatus', 'Completa tutti i campi', 'danger');
+        return;
+    }
+
+    const messaggioAzione = atletaInModificaId ? 'Salvataggio modifiche...' : 'Aggiunta in corso...';
+    mostraAlert('loginStatus', `${messaggioAzione}<span class="loading"></span>`, 'info');
+
+    const atleta = { 
+        id: atletaInModificaId || Date.now(), 
+        nome, cognome, anno, categoria, peso, gara 
+    };
+
+    // Usiamo l'azione 'aggiungiAtleta' anche per modificare (lo script GAS gestirà il resto)
+    callGoogleAppsScript('aggiungiAtleta', {
+        societaId: societaAttiva.id,
+        atleta,
+        isEdit: !!atletaInModificaId // Segnaliamo se è una modifica
+    }).then(result => {
+        if (result.success) {
+            if (atletaInModificaId) {
+                // Aggiorna l'atleta nell'array locale
+                const index = societaAttiva.atleti.findIndex(a => a.id === atletaInModificaId);
+                societaAttiva.atleti[index] = atleta;
+                atletaInModificaId = null;
+                document.querySelector('.btn-success').textContent = '+ Aggiungi Atleta';
+            } else {
+                societaAttiva.atleti.push(atleta);
             }
-
-            mostraAlert('loginStatus', 'Aggiunta in corso...<span class="loading"></span>', 'info');
-
-            const atleta = { id: Date.now(), nome, cognome, anno, categoria, peso, gara };
-
-            callGoogleAppsScript('aggiungiAtleta', {
-                societaId: societaAttiva.id,
-                atleta
-            }).then(result => {
-                if (result.success) {
-                    societaAttiva.atleti.push(atleta);
-                    aggiornaListaAtleti();
-                    document.getElementById('nomeAtleta').value = '';
-                    document.getElementById('cognomeAtleta').value = '';
-                    document.getElementById('annoNascitaAtleta').value = '';
-                    document.getElementById('categoriaAtleta').value = '';
-                    document.getElementById('pesoAtleta').value = '';
-                    document.getElementById('garaAtleta').value = '';
-                    mostraAlert('loginStatus', '✓ Atleta aggiunto', 'success');
-                } else {
-                    mostraAlert('loginStatus', result.error || 'Errore nell\'aggiunta', 'danger');
-                }
-            });
+            
+            aggiornaListaAtleti();
+            pulisciFormAtleta();
+            mostraAlert('loginStatus', '✓ Operazione completata', 'success');
+        } else {
+            mostraAlert('loginStatus', '⚠️ ' + result.error, 'danger');
         }
+    });
+}
 
-        function aggiornaListaAtleti() {
-            const container = document.getElementById('atletiList');
-            if (!societaAttiva || societaAttiva.atleti.length === 0) {
-                container.innerHTML = '<p style="padding: 15px; color: #999; text-align: center;">Nessun atleta aggiunto ancora</p>';
-                return;
-            }
+// ===== PREPARA MODIFICA =====
+function preparaModifica(id) {
+    const atleta = societaAttiva.atleti.find(a => a.id === id);
+    if (!atleta) return;
 
-            container.innerHTML = societaAttiva.atleti.map((a, i) => `
-                <div class="athlete-item">
-                    <div class="athlete-info">
-                        <div class="athlete-name">${a.nome} ${a.cognome}</div>
-                        <div class="athlete-details">
-                            ${a.categoria} • ${a.peso}kg • ${a.gara} • Nato: ${a.anno}
-                        </div>
-                    </div>
-                    <button class="btn-danger" onclick="rimuoviAtleta(${a.id})">Rimuovi</button>
+    // Popola il form con i dati esistenti
+    document.getElementById('nomeAtleta').value = atleta.nome;
+    document.getElementById('cognomeAtleta').value = atleta.cognome;
+    document.getElementById('annoNascitaAtleta').value = atleta.anno;
+    document.getElementById('categoriaAtleta').value = atleta.categoria;
+    document.getElementById('pesoAtleta').value = atleta.peso;
+    document.getElementById('garaAtleta').value = atleta.gara;
+
+    // Cambia lo stato dell'interfaccia
+    atletaInModificaId = id;
+    const btn = document.querySelector('.btn-success');
+    btn.textContent = '💾 Salva Modifiche';
+    btn.classList.replace('btn-success', 'btn-warning');
+    
+    // Scroll verso il form
+    document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function pulisciFormAtleta() {
+    document.getElementById('nomeAtleta').value = '';
+    document.getElementById('cognomeAtleta').value = '';
+    document.getElementById('annoNascitaAtleta').value = '';
+    document.getElementById('categoriaAtleta').value = '';
+    document.getElementById('pesoAtleta').value = '';
+    document.getElementById('garaAtleta').value = '';
+    
+    atletaInModificaId = null;
+    const btn = document.querySelector('.btn-warning') || document.querySelector('.btn-success');
+    btn.textContent = '+ Aggiungi Atleta';
+    btn.className = 'btn-success'; // Ripristina il colore originale
+}
+
+// ===== LISTA AGGIORNATA CON TASTO MODIFICA =====
+function aggiornaListaAtleti() {
+    const container = document.getElementById('atletiList');
+    if (!societaAttiva || societaAttiva.atleti.length === 0) {
+        container.innerHTML = '<p style="padding: 15px; color: #999; text-align: center;">Nessun atleta aggiunto ancora</p>';
+        return;
+    }
+
+    container.innerHTML = societaAttiva.atleti.map((a, i) => `
+        <div class="athlete-item">
+            <div class="athlete-info">
+                <div class="athlete-name">${a.nome} ${a.cognome}</div>
+                <div class="athlete-details">
+                    ${a.categoria} • ${a.peso}kg • ${a.gara} • Nato: ${a.anno}
                 </div>
-            `).join('');
-        }
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button class="btn-warning" style="padding: 8px 12px;" onclick="preparaModifica(${a.id})">Modifica</button>
+                <button class="btn-danger" onclick="rimuoviAtleta(${a.id})">Rimuovi</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+
 
         function rimuoviAtleta(atletaId) {
             confirmCallback = () => {
